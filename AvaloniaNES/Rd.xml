@@ -1,0 +1,5 @@
+<linker>
+  <assembly fullname="AvaloniaNES">
+    <type fullname="*" preserve="all"/>
+  </assembly>
+</linker>

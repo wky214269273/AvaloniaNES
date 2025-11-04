@@ -1,0 +1,96 @@
+<Window
+    CanMaximize="False"
+    CanResize="False"
+    Icon="/Assets/avalonia-logo.ico"
+    SizeToContent="WidthAndHeight"
+    Title="AvaloniaNES"
+    d:DesignHeight="700"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    x:Class="AvaloniaNES.Views.MainWindow"
+    x:DataType="vm:MainWindowViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:AvaloniaNES.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Design.DataContext>
+        <!--
+            This only sets the DataContext for the previewer in an IDE,
+            to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs)
+        -->
+        <vm:MainWindowViewModel />
+    </Design.DataContext>
+
+    <DockPanel>
+        <Border
+            Background="{DynamicResource TitleBackGround}"
+            BorderBrush="{DynamicResource DividerColor}"
+            BorderThickness="0,1"
+            DockPanel.Dock="Top"
+            Padding="0">
+            <Menu x:Name="m_Menu">
+                <MenuItem Header="File">
+                    <MenuItem
+                        Command="{Binding LoadRomCommand}"
+                        Header="Load The Rom"
+                        IsEnabled="{Binding !Status.HasLoadRom}" />
+                    <MenuItem
+                        Command="{Binding RemoveRomCommand}"
+                        Header="Remove The Rom"
+                        IsEnabled="{Binding Status.HasLoadRom}" />
+                    <Separator />
+                    <MenuItem Command="{Binding ExitCommand}" Header="Exit" />
+                </MenuItem>
+                <MenuItem Header="Control">
+                    <MenuItem Header="Run" />
+                    <MenuItem Header="Pause" />
+                    <Separator />
+                    <MenuItem Header="Reset" />
+                </MenuItem>
+                <MenuItem Header="Config">
+                    <MenuItem Header="Keyboard Binding" />
+                    <Separator />
+                    <MenuItem Command="{Binding ShowDebuggerCommand}" Header="Show Debugger" />
+                </MenuItem>
+                <MenuItem Header="About">
+                    <MenuItem Header="AvaloniaNES" />
+                    <MenuItem Header="Github" />
+                </MenuItem>
+            </Menu>
+        </Border>
+        <Border
+            Background="{DynamicResource TitleBackGround}"
+            BorderBrush="{DynamicResource DividerColor}"
+            BorderThickness="0,1,0,0"
+            DockPanel.Dock="Bottom"
+            Height="25">
+            <StackPanel
+                Margin="5,0"
+                Orientation="Horizontal"
+                Spacing="5">
+                <TextBlock Text="{Binding Status.RomName}" VerticalAlignment="Center" />
+                <Border
+                    Background="Gray"
+                    Margin="0,3"
+                    Width="1" />
+                <TextBlock
+                    IsVisible="{Binding Status.HasTask}"
+                    Text="Loading:"
+                    VerticalAlignment="Center" />
+                <ProgressBar
+                    IsIndeterminate="True"
+                    IsVisible="{Binding Status.HasTask}"
+                    Width="75" />
+            </StackPanel>
+        </Border>
+        <Viewbox
+            DockPanel.Dock="Bottom"
+            Height="480"
+            Width="512">
+            <Image Stretch="Uniform" x:Name="m_Video" />
+        </Viewbox>
+    </DockPanel>
+
+</Window>

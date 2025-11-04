@@ -1,0 +1,221 @@
+﻿<Window
+    CanMaximize="False"
+    CanResize="False"
+    Icon="/Assets/avalonia-logo.ico"
+    Padding="10"
+    SizeToContent="WidthAndHeight"
+    Title="Debug Window"
+    Topmost="True"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    x:Class="AvaloniaNES.Views.DebuggerWindow"
+    x:DataType="viewModels:DebuggerViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:converter="clr-namespace:AvaloniaNES.Converter"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="clr-namespace:AvaloniaNES.Models"
+    xmlns:viewModels="clr-namespace:AvaloniaNES.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Window.Resources>
+        <converter:StatusToColorConverter x:Key="StatusToColorConverter" />
+    </Window.Resources>
+
+    <StackPanel
+        HorizontalAlignment="Center"
+        Orientation="Vertical"
+        Spacing="10"
+        VerticalAlignment="Center">
+        <TextBlock
+            FontSize="18"
+            FontWeight="Bold"
+            Text="CPU Debug" />
+        <StackPanel Orientation="Horizontal" Spacing="10">
+            <ListBox
+                BorderThickness="1"
+                Height="350"
+                ItemsSource="{Binding Data.MapAssembly}"
+                SelectedItem="{Binding Data.SelectedAssembly}"
+                Width="350">
+                <ListBox.Styles>
+                    <Style Selector="ListBoxItem">
+                        <Setter Property="Padding" Value="3" />
+                    </Style>
+                </ListBox.Styles>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <Panel Width="24">
+                                <PathIcon
+                                    Data="{DynamicResource ArrowRight}"
+                                    Foreground="Red"
+                                    Height="18"
+                                    IsVisible="{Binding IsPointHere}" />
+                            </Panel>
+                            <TextBlock
+                                HorizontalAlignment="Left"
+                                Text="{Binding Instruction}"
+                                VerticalAlignment="Center" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <DockPanel LastChildFill="False">
+                <StackPanel
+                    DockPanel.Dock="Top"
+                    Orientation="Vertical"
+                    Spacing="5">
+                    <TextBlock FontWeight="Bold" Text="Register Info" />
+                    <TextBlock Text="{Binding Data.RegisterA, StringFormat='A: {0:X2}'}" />
+                    <TextBlock Text="{Binding Data.RegisterX, StringFormat='X: {0:X2}'}" />
+                    <TextBlock Text="{Binding Data.RegisterY, StringFormat='Y: {0:X2}'}" />
+                    <TextBlock Text="{Binding Data.StackPointer, StringFormat='SP: {0:X2}'}" />
+                    <TextBlock Text="{Binding Data.ProgramCounter, StringFormat='PC: {0:X4}'}" />
+                </StackPanel>
+
+                <StackPanel
+                    DockPanel.Dock="Bottom"
+                    Orientation="Vertical"
+                    Spacing="5">
+                    <TextBlock FontWeight="Bold" Text="Status Info" />
+                    <Border
+                        BorderBrush="{DynamicResource BorderColor}"
+                        BorderThickness="1"
+                        HorizontalAlignment="Left"
+                        Padding="5,3"
+                        Width="125">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock
+                                FontWeight="Bold"
+                                Foreground="{Binding Data.CarryFlag, Converter={StaticResource StatusToColorConverter}}"
+                                Text="C" />
+                            <TextBlock
+                                FontWeight="Bold"
+                                Foreground="{Binding Data.ZeroFlag, Converter={StaticResource StatusToColorConverter}}"
+                                Text="Z" />
+                            <TextBlock
+                                FontWeight="Bold"
+                                Foreground="{Binding Data.InterruptDisableFlag, Converter={StaticResource StatusToColorConverter}}"
+                                Text="I" />
+                            <TextBlock
+                                FontWeight="Bold"
+                                Foreground="{Binding Data.DecimalModeFlag, Converter={StaticResource StatusToColorConverter}}"
+                                Text="D" />
+                            <TextBlock
+                                FontWeight="Bold"
+                                Foreground="{Binding Data.BreakCommandFlag, Converter={StaticResource StatusToColorConverter}}"
+                                Text="B" />
+                            <TextBlock
+                                FontWeight="Bold"
+                                Foreground="{Binding Data.UnusedFlag, Converter={StaticResource StatusToColorConverter}}"
+                                Text="U" />
+                            <TextBlock
+                                FontWeight="Bold"
+                                Foreground="{Binding Data.OverflowFlag, Converter={StaticResource StatusToColorConverter}}"
+                                Text="V" />
+                            <TextBlock
+                                FontWeight="Bold"
+                                Foreground="{Binding Data.NegativeFlag, Converter={StaticResource StatusToColorConverter}}"
+                                Text="N" />
+                        </StackPanel>
+                    </Border>
+                    <Button
+                        Command="{Binding ReLocateCommand}"
+                        Content="back to current"
+                        HorizontalContentAlignment="Center"
+                        Width="125" />
+                </StackPanel>
+            </DockPanel>
+        </StackPanel>
+        <TextBlock
+            FontSize="18"
+            FontWeight="Bold"
+            Text="PPU Debug" />
+        <StackPanel Orientation="Horizontal" Spacing="10">
+            <DockPanel LastChildFill="False">
+                <UniformGrid
+                    ColumnSpacing="10"
+                    DockPanel.Dock="Top"
+                    Rows="4">
+                    <RadioButton
+                        Content="Palette 0"
+                        IsChecked="True"
+                        x:Name="m_Radio_0" />
+                    <RadioButton Content="Palette 1" x:Name="m_Radio_1" />
+                    <RadioButton Content="Palette 2" x:Name="m_Radio_2" />
+                    <RadioButton Content="Palette 3" x:Name="m_Radio_3" />
+                    <RadioButton Content="Palette 4" x:Name="m_Radio_4" />
+                    <RadioButton Content="Palette 5" x:Name="m_Radio_5" />
+                    <RadioButton Content="Palette 6" x:Name="m_Radio_6" />
+                    <RadioButton Content="Palette 7" x:Name="m_Radio_7" />
+                </UniformGrid>
+                <Button
+                    Click="Button_OnClick"
+                    Content="Draw Pattern"
+                    DockPanel.Dock="Bottom"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center" />
+            </DockPanel>
+            <Border
+                BorderBrush="{DynamicResource BorderColor}"
+                BorderThickness="0,0,1,0"
+                VerticalAlignment="Stretch" />
+            <StackPanel Orientation="Vertical" Spacing="3">
+                <TextBlock Text="Pattern Table 1" />
+                <Border
+                    BorderBrush="{DynamicResource BorderColor}"
+                    BorderThickness="1"
+                    Height="128"
+                    Width="128">
+                    <Image
+                        Height="128"
+                        Width="128"
+                        x:Name="m_Video_1" />
+                </Border>
+            </StackPanel>
+            <StackPanel Orientation="Vertical" Spacing="3">
+                <TextBlock Text="Pattern Table 2" />
+                <Border
+                    BorderBrush="{DynamicResource BorderColor}"
+                    BorderThickness="1"
+                    Height="128"
+                    Width="128">
+                    <Image
+                        Height="128"
+                        Width="128"
+                        x:Name="m_Video_2" />
+                </Border>
+            </StackPanel>
+        </StackPanel>
+        <Border
+            BorderBrush="{DynamicResource BorderColor}"
+            BorderThickness="0,1,0,0"
+            HorizontalAlignment="Stretch" />
+        <UniformGrid Columns="4" RowSpacing="5">
+            <Button
+                Command="{Binding StepCommand}"
+                Content="CPU Step"
+                HorizontalContentAlignment="Center"
+                Width="115" />
+            <Button
+                Command="{Binding DrawSingleFrameCommand}"
+                Content="Draw 1 Frame"
+                HorizontalContentAlignment="Center"
+                Width="115" />
+            <Button
+                Command="{Binding ResetCommand}"
+                Content="Reset"
+                HorizontalContentAlignment="Center"
+                Width="115" />
+            <Button
+                Content="IRQ"
+                HorizontalContentAlignment="Center"
+                Width="115" />
+            <Button
+                Content="NMI"
+                HorizontalContentAlignment="Center"
+                Width="115" />
+        </UniformGrid>
+    </StackPanel>
+</Window>

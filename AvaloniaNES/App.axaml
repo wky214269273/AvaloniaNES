@@ -1,0 +1,27 @@
+<Application
+    RequestedThemeVariant="Default"
+    x:Class="AvaloniaNES.App"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:local="using:AvaloniaNES"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!--  "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options.  -->
+
+    <Application.Styles>
+        <FluentTheme />
+
+        <Style Selector="ContentPresenter">
+            <Setter Property="FontFamily" Value="avares://Quick.AvaloniaFonts.Roboto/Assets/Fonts#Roboto" />
+        </Style>
+    </Application.Styles>
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!--  ThemeColor  -->
+                <ResourceInclude Source="Assets/ThemeData.axaml" />
+                <!--  Icons  -->
+                <ResourceInclude Source="Assets/Icon.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
