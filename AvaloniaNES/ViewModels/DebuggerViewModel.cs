@@ -60,13 +60,13 @@ public partial class DebuggerViewModel : ViewModelBase
             {
                 _bus.Clock();
             } while (!_bus.PPU!.FrameCompleted);
+            _bus.PPU!.FrameCompleted = false;
 
             do
             {
                 _bus.Clock();
             } while (!_bus.CPU!.Complete());
         });
-        _bus.PPU!.FrameCompleted = false;
         Data.UpdateSelectItem();
     }
 

@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Threading;
 using AvaloniaNES.Device.BUS;
 using AvaloniaNES.Models;
@@ -16,6 +17,8 @@ public partial class MainWindow : Window
     private readonly DispatcherTimer _renderTimer;
     private readonly NESStatus _status = App.Services.GetRequiredService<NESStatus>();
     private readonly Bus _bus = App.Services.GetRequiredService<Bus>();
+
+    private double _ppuCycle = 16.66;
     public MainWindow()
     {
         InitializeComponent();
@@ -28,28 +31,22 @@ public partial class MainWindow : Window
             Interval = TimeSpan.FromMilliseconds(16) // 60FPS
         };
         _renderTimer.Tick += OnRenderFrame;
-        _renderTimer.Start();
+        _renderTimer.Start();  //Complete 1 Frame is 16.666666ms
 
         Task.Run(() =>
         {
             while (true)
             {
-                if (_status.HasLoadRom)
+                if (_status.HasLoadRom && _status.BusState == BUS_STATE.RUN)
                 {
-                    // Run Clock
-                    if (_status.BusState == BUS_STATE.RUN)
+                    do
                     {
-                        do
-                        {
-                            _bus.Clock();
-                        } while (!_bus.PPU!.FrameCompleted);
-                        _bus.PPU!.FrameCompleted = false;
-                    }
+                        _bus.Clock();
+                    } while (!_bus.PPU!.FrameCompleted);
+                    _bus.PPU!.FrameCompleted = false;
                 }
-                else
-                {
-                    Thread.Sleep(1);
-                }
+                //Delay
+                delayMs(_ppuCycle);
             }
         });
     }
@@ -64,19 +61,9 @@ public partial class MainWindow : Window
     {
         if (_status.HasLoadRom)
         {
-            // update image
-            Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                // method 1
-                //var temp = m_Video.Source;
-                // m_Video.Source = null;
-                // m_Video.Source = _bus.PPU!.GetScreen();
-            
-                // method 2
-                m_Video.InvalidateMeasure();
-                m_Video.InvalidateArrange();
-                m_Video.InvalidateVisual();
-            }, DispatcherPriority.Render);
+            m_Video.InvalidateMeasure();
+            m_Video.InvalidateArrange();
+            m_Video.InvalidateVisual();
         }
     }
 
@@ -94,5 +81,30 @@ public partial class MainWindow : Window
         {
             viewModel.HandleKeyUp(e.Key);
         }
+    }
+    
+    private double delayMs(double time)
+    {
+        System.Diagnostics.Stopwatch stopTime = new System.Diagnostics.Stopwatch();
+
+        stopTime.Start();
+        while (stopTime.Elapsed.TotalMilliseconds < time) { }
+        stopTime.Stop();
+
+        return stopTime.Elapsed.TotalMilliseconds;
+    }
+    
+    //speed
+    private void MenuItem_x1_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _ppuCycle = 16.66;
+    }
+    private void MenuItem_x2_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _ppuCycle = 8.33;
+    }
+    private void MenuItem_x4_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _ppuCycle = 4.16;
     }
 }

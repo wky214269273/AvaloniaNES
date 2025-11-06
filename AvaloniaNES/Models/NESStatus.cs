@@ -15,5 +15,6 @@ public partial class NESStatus : ViewModelBase
     [ObservableProperty]private string _romName = string.Empty;
     [ObservableProperty]private bool _hasTask = false;
     public bool HasShowDebugger { get; set; } = false;
+    public bool HasShowKeyMapper { get; set; } = false;
     public BUS_STATE BusState{ get; set; } = BUS_STATE.RUN;
 }

@@ -4,6 +4,7 @@
     Icon="/Assets/avalonia-logo.ico"
     SizeToContent="WidthAndHeight"
     Title="KeyMap Window"
+    Topmost="True"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d"
@@ -39,7 +40,7 @@
         </StackPanel>
         <StackPanel Orientation="Horizontal" Spacing="15">
             <TextBlock Text="Button: Select" Width="125" />
-            <TextBlock Text="Right Shift" Width="125" />
+            <TextBlock Text="Right Ctrl" Width="125" />
             <TextBlock Text="NumberPad +" Width="125" />
         </StackPanel>
         <StackPanel Orientation="Horizontal" Spacing="15">

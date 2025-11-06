@@ -30,7 +30,7 @@ public partial class MainWindowViewModel : ViewModelBase
         { "Down", Key.S },
         { "Left", Key.A },
         { "Right", Key.D },
-        { "Select", Key.RightShift },
+        { "Select", Key.RightCtrl },
         { "Start", Key.Enter },
     };
     private readonly Dictionary<string, Key> _keyMap2 = new()
@@ -157,11 +157,11 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         try
         {
-            /* 选择文件 */
+            /* choose file */
             var LoadPath = await _popupHelper.ShowFileChooseDialog();
             if (string.IsNullOrWhiteSpace(LoadPath)) return;
 
-            /* 解析 */
+            /* parse */
             Status.HasTask = true;
             Status.HasLoadRom = false;
             var disAssembly = new Dictionary<ushort, string>();
@@ -183,11 +183,10 @@ public partial class MainWindowViewModel : ViewModelBase
                 });
             }
             
-            /* 主动更新一次CPU状态 */
+            /* update debugger window */
             Data.UpdateSelectItem();
             Status.HasLoadRom = true;
             Status.RomName = Path.GetFileName(LoadPath);
-            _popupHelper.ShowNotification("Success","Load Rom Success", NotificationType.Success);
         }
         catch (Exception ex)
         {
@@ -215,9 +214,13 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task ShowKeyMap()
+    private void ShowKeyMap()
     {
-        var buffer = new KeyMapWindow();
-        await buffer.ShowDialog(_popupHelper._mainWnd!);
+        if (!Status.HasShowKeyMapper)
+        {
+            var buffer = new KeyMapWindow();
+            buffer.Show();
+            Status.HasShowKeyMapper = true;
+        }
     }
 }

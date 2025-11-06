@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using AvaloniaNES.Device.BUS;
@@ -20,6 +21,7 @@ public partial class DebuggerWindow : Window
     protected override void OnClosed(EventArgs e)
     {
         base.OnClosed(e);
+        DataContext = null;
         _status.HasShowDebugger = false;
         _status.BusState = BUS_STATE.RUN;
     }

@@ -49,6 +49,22 @@
                 </MenuItem>
                 <MenuItem Focusable="False" Header="Config">
                     <MenuItem Command="{Binding ShowKeyMapCommand}" Header="Keyboard Binding" />
+                    <MenuItem
+                        Click="MenuItem_x1_OnClick"
+                        GroupName="Speed"
+                        Header="x1 Speed"
+                        IsChecked="True"
+                        ToggleType="Radio" />
+                    <MenuItem
+                        Click="MenuItem_x2_OnClick"
+                        GroupName="Speed"
+                        Header="x2 Speed"
+                        ToggleType="Radio" />
+                    <MenuItem
+                        Click="MenuItem_x4_OnClick"
+                        GroupName="Speed"
+                        Header="x4 Speed"
+                        ToggleType="Radio" />
                     <Separator />
                     <MenuItem Command="{Binding ShowDebuggerCommand}" Header="Show Debugger" />
                 </MenuItem>
