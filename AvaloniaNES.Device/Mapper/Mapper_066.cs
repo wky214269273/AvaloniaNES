@@ -24,7 +24,7 @@ public class Mapper_066:IMapperService
 
     public MirroringType GetMirrorType()
     {
-        throw new NotImplementedException();
+        return MirroringType.Hardware;
     }
 
     public bool CPUMapRead(ushort address, ref uint mapAddress, ref byte data)
