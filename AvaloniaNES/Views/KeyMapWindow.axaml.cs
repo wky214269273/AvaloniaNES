@@ -9,7 +9,7 @@ namespace AvaloniaNES.Views;
 
 public partial class KeyMapWindow : Window
 {
-    private readonly NESStatus _status = App.Services.GetRequiredService<NESStatus>();
+    //private readonly NESStatus _status = App.Services.GetRequiredService<NESStatus>();
     public KeyMapWindow()
     {
         InitializeComponent();
@@ -18,6 +18,6 @@ public partial class KeyMapWindow : Window
     protected override void OnClosed(EventArgs e)
     {
         base.OnClosed(e);
-        _status.HasShowKeyMapper = false;
+        //_status.HasShowKeyMapper = false;
     }
 }

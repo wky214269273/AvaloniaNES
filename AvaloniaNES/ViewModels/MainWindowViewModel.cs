@@ -24,8 +24,8 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly HashSet<Key> _pressedKeys = new();
     private readonly Dictionary<string, Key> _keyMap1 = new()
     {
-        { "A", Key.J },
-        { "B", Key.K },
+        { "A", Key.K },
+        { "B", Key.J },
         { "Up", Key.W },
         { "Down", Key.S },
         { "Left", Key.A },
@@ -35,8 +35,8 @@ public partial class MainWindowViewModel : ViewModelBase
     };
     private readonly Dictionary<string, Key> _keyMap2 = new()
     {
-        { "A", Key.NumPad1 },
-        { "B", Key.NumPad2 },
+        { "A", Key.NumPad2 },
+        { "B", Key.NumPad1 },
         { "Up", Key.Up },
         { "Down", Key.Down },
         { "Left", Key.Left },

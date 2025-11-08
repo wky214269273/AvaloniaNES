@@ -13,60 +13,11 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StackPanel Margin="20" Orientation="Vertical">
-        <StackPanel Orientation="Horizontal" Spacing="15">
-            <TextBlock
-                FontWeight="Bold"
-                Text="Controller"
-                Width="125" />
-            <TextBlock
-                FontWeight="Bold"
-                Text="Player 1 Key Map"
-                Width="125" />
-            <TextBlock
-                FontWeight="Bold"
-                Text="Player 2 Key Map"
-                Width="125" />
-        </StackPanel>
-        <StackPanel Orientation="Horizontal" Spacing="15">
-            <TextBlock Text="Button: A" Width="125" />
-            <TextBlock Text="J" Width="125" />
-            <TextBlock Text="NumberPad 1" Width="125" />
-        </StackPanel>
-        <StackPanel Orientation="Horizontal" Spacing="15">
-            <TextBlock Text="Button: B" Width="125" />
-            <TextBlock Text="K" Width="125" />
-            <TextBlock Text="NumberPad 2" Width="125" />
-        </StackPanel>
-        <StackPanel Orientation="Horizontal" Spacing="15">
-            <TextBlock Text="Button: Select" Width="125" />
-            <TextBlock Text="Right Ctrl" Width="125" />
-            <TextBlock Text="NumberPad +" Width="125" />
-        </StackPanel>
-        <StackPanel Orientation="Horizontal" Spacing="15">
-            <TextBlock Text="Button: Enter" Width="125" />
-            <TextBlock Text="Enter" Width="125" />
-            <TextBlock Text="NumberPad -" Width="125" />
-        </StackPanel>
-        <StackPanel Orientation="Horizontal" Spacing="15">
-            <TextBlock Text="Button: ↑" Width="125" />
-            <TextBlock Text="W" Width="125" />
-            <TextBlock Text="Up" Width="125" />
-        </StackPanel>
-        <StackPanel Orientation="Horizontal" Spacing="15">
-            <TextBlock Text="Button: ↓" Width="125" />
-            <TextBlock Text="S" Width="125" />
-            <TextBlock Text="Down" Width="125" />
-        </StackPanel>
-        <StackPanel Orientation="Horizontal" Spacing="15">
-            <TextBlock Text="Button: ←" Width="125" />
-            <TextBlock Text="A" Width="125" />
-            <TextBlock Text="Left" Width="125" />
-        </StackPanel>
-        <StackPanel Orientation="Horizontal" Spacing="15">
-            <TextBlock Text="Button: →" Width="125" />
-            <TextBlock Text="D" Width="125" />
-            <TextBlock Text="Right" Width="125" />
-        </StackPanel>
+    <StackPanel
+        Margin="20"
+        Orientation="Vertical"
+        Spacing="15">
+        <Image Source="../Assets/Player1.png" Width="400" />
+        <Image Source="../Assets/Player2.png" Width="400" />
     </StackPanel>
 </Window>
