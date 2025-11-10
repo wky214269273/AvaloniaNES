@@ -1,0 +1,4 @@
+<linker>
+    <assembly fullname="AvaloniaNES" preserve="All"/>
+    <assembly fullname="Quick.AvaloniaFonts.Roboto" preserve="All"/>
+</linker>
