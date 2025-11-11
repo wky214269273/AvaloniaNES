@@ -12,12 +12,13 @@
         <semi:SemiTheme Locale="zh-CN" />
 
         <Style Selector="ContentPresenter">
-            <Setter Property="FontFamily" Value="avares://Quick.AvaloniaFonts.Roboto/Assets/Fonts#Roboto" />
+            <Setter Property="FontFamily" Value="avares://AvaloniaNES/Assets/Fonts#Source Han Sans CN" />
         </Style>
     </Application.Styles>
 
     <Application.Resources>
-        <ResourceDictionary>
+        <!--<FontFamily x:Key="SansCN">avares://AvaloniaNES/Assets/Fonts#Source Han Sans CN</FontFamily>-->
+        <ResourceDictionary>     
             <ResourceDictionary.MergedDictionaries>
                 <!--  ThemeColor  -->
                 <ResourceInclude Source="Assets/ThemeData.axaml" />
