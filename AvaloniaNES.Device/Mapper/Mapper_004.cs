@@ -12,9 +12,9 @@ namespace AvaloniaNES.Device.Mapper
         private bool isChrInversion = false;
         private MirroringType mirroringType = MirroringType.Horizontal;
 
-        private uint[] pRegister = new uint[8];
+        private byte[] pRegister = new byte[8];
         private uint[] pChrBank = new uint[8];
-        private uint[] pPrgBank = new uint[8];
+        private uint[] pPrgBank = new uint[4];
 
         private bool bIRQActive = false;
         private bool bIRQEnable = false;
@@ -25,38 +25,30 @@ namespace AvaloniaNES.Device.Mapper
 
         public bool CPUMapRead(ushort address, ref uint mapAddress, ref byte data)
         {
-            if (address >= 0x6000 && address <= 0x7FFF)  // Cartridge RAM
+            if (address >= 0x6000 && address <= 0x7FFF)
             {
-                mapAddress = 0xFFFFFFFF; // Indicate to use returned data
+                mapAddress = 0xFFFFFFFF;
                 data = _ram[address & 0x1FFF];
                 return true;
             }
             if (address >= 0x8000 && address <= 0x9FFF)
             {
-                // Implement PRG bank switching logic here based on isPrgBankMode and pPrgBank
-                // This is a placeholder implementation
-                mapAddress = (uint)(pPrgBank[0] + (address & 0x1FFF));
+                mapAddress = pPrgBank[0] + (uint)(address & 0x1FFF);
                 return true;
             }
             if (address >= 0xA000 && address <= 0xBFFF)
             {
-                // Implement PRG bank switching logic here based on isPrgBankMode and pPrgBank
-                // This is a placeholder implementation
-                mapAddress = (uint)(pPrgBank[1] + (address & 0x1FFF));
+                mapAddress = pPrgBank[1] + (uint)(address & 0x1FFF);
                 return true;
             }
             if (address >= 0xC000 && address <= 0xDFFF)
             {
-                // Implement PRG bank switching logic here based on isPrgBankMode and pPrgBank
-                // This is a placeholder implementation
-                mapAddress = (uint)(pPrgBank[2] + (address & 0x1FFF));
+                mapAddress = pPrgBank[2] + (uint)(address & 0x1FFF);
                 return true;
             }
             if (address >= 0xE000 && address <= 0xFFFF)
             {
-                // Implement PRG bank switching logic here based on isPrgBankMode and pPrgBank
-                // This is a placeholder implementation
-                mapAddress = (uint)(pPrgBank[3] + (address & 0x1FFF));
+                mapAddress = pPrgBank[3] + (uint)(address & 0x1FFF);
                 return true;
             }
             return false;
@@ -64,9 +56,9 @@ namespace AvaloniaNES.Device.Mapper
 
         public bool CPUMapWrite(ushort address, ref uint mapAddress, byte data)
         {
-            if (address >= 0x6000 && address <= 0x7FFF)  // Cartridge RAM
+            if (address >= 0x6000 && address <= 0x7FFF)
             {
-                mapAddress = 0xFFFFFFFF; // Indicate to use internal RAM
+                mapAddress = 0xFFFFFFFF;
                 _ram[address & 0x1FFF] = data;
                 return true;
             }
@@ -81,44 +73,7 @@ namespace AvaloniaNES.Device.Mapper
                 else
                 {
                     pRegister[targetRegister] = data;
-                    // Update banks based on pRegister values
-                    // This is a placeholder implementation
-                    if (isChrInversion)
-                    {
-                        pChrBank[0] = pRegister[2] * 0x0400;
-                        pChrBank[1] = pRegister[3] * 0x0400;
-                        pChrBank[2] = pRegister[4] * 0x0400;
-                        pChrBank[3] = pRegister[5] * 0x0400;
-                        pChrBank[4] = (pRegister[0] & 0xFE) * 0x0400;
-                        pChrBank[5] = pRegister[0] * 0x0400 + 0x0400;
-                        pChrBank[6] = (pRegister[1] & 0xFE) * 0x0400;
-                        pChrBank[7] = pRegister[1] * 0x0400 + 0x0400;
-                    }
-                    else
-                    {
-                        pChrBank[0] = (pRegister[0] & 0xFE) * 0x0400;
-                        pChrBank[1] = pRegister[0] * 0x0400 + 0x0400;
-                        pChrBank[2] = (pRegister[1] & 0xFE) * 0x0400;
-                        pChrBank[3] = pRegister[1] * 0x0400 + 0x0400;
-                        pChrBank[4] = pRegister[2] * 0x0400;
-                        pChrBank[5] = pRegister[3] * 0x0400;
-                        pChrBank[6] = pRegister[4] * 0x0400;
-                        pChrBank[7] = pRegister[5] * 0x0400;
-                    }
-
-                    if (isPrgBankMode)
-                    {
-                        pPrgBank[2] = (pRegister[6] & 0x3F) * 0x2000;
-                        pPrgBank[0] = (uint)((_prgBank * 2 - 2) * 0x2000);
-                    }
-                    else
-                    {
-                        pPrgBank[0] = (pRegister[6] & 0x3F) * 0x2000;
-                        pPrgBank[2] = (uint)((_prgBank * 2 - 2) * 0x2000);
-                    }
-
-                    pPrgBank[1] = (pRegister[7] & 0x3F) * 0x2000;
-                    pPrgBank[3] = (uint)((_prgBank * 2 - 1) * 0x2000);
+                    UpdateBanks();
                 }
                 return false;
             }
@@ -127,17 +82,7 @@ namespace AvaloniaNES.Device.Mapper
             {
                 if ((address & 0x0001) == 0)
                 {
-                    if ((data & 0x01) > 0)
-                    {
-                        mirroringType = MirroringType.Horizontal;
-                    }
-                    else
-                    {
-                        mirroringType = MirroringType.Vertical;
-                    }
-                }
-                else
-                {
+                    mirroringType = (data & 0x01) > 0 ? MirroringType.Horizontal : MirroringType.Vertical;
                 }
                 return false;
             }
@@ -186,52 +131,53 @@ namespace AvaloniaNES.Device.Mapper
 
         public bool PPUMapRead(ushort address, ref uint mapAddress)
         {
+            // 统一用bank映射，无论是CHR ROM还是CHR RAM
             if (address <= 0x03FF)
-            {
                 mapAddress = pChrBank[0] + (uint)(address & 0x03FF);
-                return true;
-            }
-            if (address >= 0x0400 && address <= 0x07FF)
-            {
+            else if (address <= 0x07FF)
                 mapAddress = pChrBank[1] + (uint)(address & 0x03FF);
-                return true;
-            }
-            if (address >= 0x0800 && address <= 0x0BFF)
-            {
+            else if (address <= 0x0BFF)
                 mapAddress = pChrBank[2] + (uint)(address & 0x03FF);
-                return true;
-            }
-            if (address >= 0x0C00 && address <= 0x0FFF)
-            {
+            else if (address <= 0x0FFF)
                 mapAddress = pChrBank[3] + (uint)(address & 0x03FF);
-                return true;
-            }
-            if (address >= 0x1000 && address <= 0x13FF)
-            {
+            else if (address <= 0x13FF)
                 mapAddress = pChrBank[4] + (uint)(address & 0x03FF);
-                return true;
-            }
-            if (address >= 0x1400 && address <= 0x17FF)
-            {
+            else if (address <= 0x17FF)
                 mapAddress = pChrBank[5] + (uint)(address & 0x03FF);
-                return true;
-            }
-            if (address >= 0x1800 && address <= 0x1BFF)
-            {
+            else if (address <= 0x1BFF)
                 mapAddress = pChrBank[6] + (uint)(address & 0x03FF);
-                return true;
-            }
-            if (address >= 0x1C00 && address <= 0x1FFF)
-            {
+            else if (address <= 0x1FFF)
                 mapAddress = pChrBank[7] + (uint)(address & 0x03FF);
-                return true;
-            }
-
-            return false;
+            else
+                return false;
+            return true;
         }
 
         public bool PPUMapWrite(ushort address, ref uint mapAddress)
         {
+            // 只要是CHR RAM模式，允许写入
+            if (_chrBank == 0)
+            {
+                if (address <= 0x03FF)
+                    mapAddress = pChrBank[0] + (uint)(address & 0x03FF);
+                else if (address <= 0x07FF)
+                    mapAddress = pChrBank[1] + (uint)(address & 0x03FF);
+                else if (address <= 0x0BFF)
+                    mapAddress = pChrBank[2] + (uint)(address & 0x03FF);
+                else if (address <= 0x0FFF)
+                    mapAddress = pChrBank[3] + (uint)(address & 0x03FF);
+                else if (address <= 0x13FF)
+                    mapAddress = pChrBank[4] + (uint)(address & 0x03FF);
+                else if (address <= 0x17FF)
+                    mapAddress = pChrBank[5] + (uint)(address & 0x03FF);
+                else if (address <= 0x1BFF)
+                    mapAddress = pChrBank[6] + (uint)(address & 0x03FF);
+                else if (address <= 0x1FFF)
+                    mapAddress = pChrBank[7] + (uint)(address & 0x03FF);
+                else
+                    return false;
+                return true;
+            }
             return false;
         }
 
@@ -249,12 +195,8 @@ namespace AvaloniaNES.Device.Mapper
             nIRQReload = 0x0000;
 
             for (int i = 0; i < 4; i++) pPrgBank[i] = 0;
-            for (int i = 0; i < 8; i++) { pChrBank[i] = 0; pRegister[i] = 0; }
-
-            pPrgBank[0] = 0 * 0x2000;
-            pPrgBank[1] = 1 * 0x2000;
-            pPrgBank[2] = (uint)((_prgBank * 2 - 2) * 0x2000);
-            pPrgBank[3] = (uint)((_prgBank * 2 - 1) * 0x2000);
+            for (int i = 0; i < 8; i++) { pRegister[i] = (byte)i; }
+            UpdateBanks();
         }
 
         public bool irqState()
@@ -281,6 +223,74 @@ namespace AvaloniaNES.Device.Mapper
             if (nIRQCounter == 0 && bIRQEnable)
             {
                 bIRQActive = true;
+            }
+        }
+
+        // 关键修正：MMC3 Bank 切换逻辑
+        private void UpdateBanks()
+        {
+            // PRG ROM 总bank数
+            int prgBankCount = _prgBank * 2;
+            int chrBankCount = (_chrBank == 0) ? 8 : _chrBank * 8;
+
+            // 边界保护
+            byte prg6 = (byte)(pRegister[6] % prgBankCount);
+            byte prg7 = (byte)(pRegister[7] % prgBankCount);
+
+            // PRG Bank 映射
+            if (isPrgBankMode)
+            {
+                // 0x8000-0x9FFF: 固定倒数第二bank
+                pPrgBank[0] = (uint)((prgBankCount - 2) * 0x2000);
+                // 0xA000-0xBFFF: 可切换bank 7
+                pPrgBank[1] = (uint)(prg7 * 0x2000);
+                // 0xC000-0xDFFF: 可切换bank 6
+                pPrgBank[2] = (uint)(prg6 * 0x2000);
+                // 0xE000-0xFFFF: 固定最后一个bank
+                pPrgBank[3] = (uint)((prgBankCount - 1) * 0x2000);
+            }
+            else
+            {
+                // 0x8000-0x9FFF: 可切换bank 6
+                pPrgBank[0] = (uint)(prg6 * 0x2000);
+                // 0xA000-0xBFFF: 可切换bank 7
+                pPrgBank[1] = (uint)(prg7 * 0x2000);
+                // 0xC000-0xDFFF: 固定倒数第二bank
+                pPrgBank[2] = (uint)((prgBankCount - 2) * 0x2000);
+                // 0xE000-0xFFFF: 固定最后一个bank
+                pPrgBank[3] = (uint)((prgBankCount - 1) * 0x2000);
+            }
+
+            // CHR Bank 映射
+            // 2K/1K 切换，倒置模式
+            if (_chrBank > 0)
+            {
+                if (isChrInversion)
+                {
+                    // 2K: 0,1 -> pRegister[2], pRegister[3]
+                    pChrBank[0] = (uint)(((pRegister[2] & 0xFE) % chrBankCount) * 0x400);
+                    pChrBank[1] = (uint)(((pRegister[2] | 0x01) % chrBankCount) * 0x400);
+                    pChrBank[2] = (uint)(((pRegister[3] & 0xFE) % chrBankCount) * 0x400);
+                    pChrBank[3] = (uint)(((pRegister[3] | 0x01) % chrBankCount) * 0x400);
+                    // 1K: 4,5,6,7
+                    pChrBank[4] = (uint)((pRegister[0] % chrBankCount) * 0x400);
+                    pChrBank[5] = (uint)((pRegister[1] % chrBankCount) * 0x400);
+                    pChrBank[6] = (uint)((pRegister[4] % chrBankCount) * 0x400);
+                    pChrBank[7] = (uint)((pRegister[5] % chrBankCount) * 0x400);
+                }
+                else
+                {
+                    // 2K: 0,1 -> pRegister[0], pRegister[1]
+                    pChrBank[0] = (uint)(((pRegister[0] & 0xFE) % chrBankCount) * 0x400);
+                    pChrBank[1] = (uint)(((pRegister[0] | 0x01) % chrBankCount) * 0x400);
+                    pChrBank[2] = (uint)(((pRegister[1] & 0xFE) % chrBankCount) * 0x400);
+                    pChrBank[3] = (uint)(((pRegister[1] | 0x01) % chrBankCount) * 0x400);
+                    // 1K: 2,3,4,5
+                    pChrBank[4] = (uint)((pRegister[2] % chrBankCount) * 0x400);
+                    pChrBank[5] = (uint)((pRegister[3] % chrBankCount) * 0x400);
+                    pChrBank[6] = (uint)((pRegister[4] % chrBankCount) * 0x400);
+                    pChrBank[7] = (uint)((pRegister[5] % chrBankCount) * 0x400);
+                }
             }
         }
     }

@@ -23,7 +23,7 @@ public partial class Cartridge
     {
         var rom = NesRomReader.ReadRom(filePath);
         _prgRam = rom.PrgRom;
-        _chrRam = rom.ChrRom;
+        _chrRom = rom.ChrRom;
         _prgBanks = rom.PrgBanks;
         _chrBanks = rom.ChrBanks;
         Mirror = rom.MirrorType;
@@ -74,7 +74,9 @@ public partial class Cartridge
     //Memory
     private byte[] _prgRam;
 
-    private byte[] _chrRam;
+    private byte[] _chrRom;
+
+    private byte[] _chrRam = new byte[0x2000];
 
     //Mapper
     private readonly IMapperService _mapper;

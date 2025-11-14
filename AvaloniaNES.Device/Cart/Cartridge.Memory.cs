@@ -1,4 +1,6 @@
-﻿namespace AvaloniaNES.Device.Cart;
+﻿using static System.Runtime.InteropServices.JavaScript.JSType;
+
+namespace AvaloniaNES.Device.Cart;
 
 public partial class Cartridge
 {
@@ -38,7 +40,10 @@ public partial class Cartridge
         uint mapAddress = 0;
         if (_mapper.PPUMapRead(address, ref mapAddress))
         {
-            value = _chrRam[mapAddress];
+            if (_chrBanks == 0)
+                value = _chrRam[mapAddress % 0x2000];
+            else
+                value = _chrRom[mapAddress];
             return true;
         }
         return false;
@@ -47,9 +52,12 @@ public partial class Cartridge
     public bool PPUWrite(ushort address, byte value)
     {
         uint mapAddress = 0;
-        if (_mapper.PPUMapRead(address, ref mapAddress))
+        if (_mapper.PPUMapWrite(address, ref mapAddress))
         {
-            _chrRam[mapAddress] = value;
+            if (_chrBanks == 0)
+                _chrRam[mapAddress % 0x2000] = value;
+            else
+                _chrRom[mapAddress] = value;
             return true;
         }
         return false;
