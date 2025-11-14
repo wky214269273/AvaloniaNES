@@ -55,10 +55,10 @@ public partial class Cartridge
         if (_mapper.PPUMapWrite(address, ref mapAddress))
         {
             if (_chrBanks == 0)
+            {
                 _chrRam[mapAddress % 0x2000] = value;
-            else
-                _chrRom[mapAddress] = value;
-            return true;
+                return true;
+            }
         }
         return false;
     }

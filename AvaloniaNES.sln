@@ -1,8 +1,8 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AvaloniaNES", "AvaloniaNES\AvaloniaNES.csproj", "{23AAF842-6D06-41F9-B7F5-CCBD67F68AAE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvaloniaNES", "AvaloniaNES\AvaloniaNES.csproj", "{23AAF842-6D06-41F9-B7F5-CCBD67F68AAE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AvaloniaNES.Device", "AvaloniaNES.Device\AvaloniaNES.Device.csproj", "{D15F791B-B5AB-461F-8B08-634551A88077}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvaloniaNES.Device", "AvaloniaNES.Device\AvaloniaNES.Device.csproj", "{D15F791B-B5AB-461F-8B08-634551A88077}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
