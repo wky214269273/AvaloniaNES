@@ -2,7 +2,7 @@
 
 [中文](./README_CN.md)
 
-A cross-platform NES emulator implemented based on .NET8 and AvaloniaUI. This project is mainly used for the research and learning of emulator technology, and does not have many commercialized features (such as cheat codes, plugins, etc.).
+A cross-platform NES emulator implemented based on .NET10 and AvaloniaUI. This project is mainly used for the research and learning of emulator technology, and does not have many commercialized features (such as cheat codes, plugins, etc.).
 
 ## Module Implementation
 
