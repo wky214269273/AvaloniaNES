@@ -70,12 +70,23 @@ public partial class Olc2C02
                     break;
 
                 case 0x0007:  //ppu data
-                    result = ppu_data_buffer;
-                    ppu_data_buffer = PPURead(vram_addr.reg);
+                    // 修正：符合硬件的读缓冲行为
+                    // 对非 palette 区域：返回 buffered value，然后把 buffer 更新为当前地址读取值
+                    // 对 palette 区域：返回直接读取的 palette 值，同时 buffer 应被更新为对应的 nametable（非-palette）读取值
                     if (vram_addr.reg >= 0x3F00)
                     {
-                        result = ppu_data_buffer;
+                        // read palette directly
+                        result = PPURead(vram_addr.reg);
+                        // update buffer with mirrored nametable read (address & 0x3EFF)
+                        ppu_data_buffer = PPURead((ushort)(vram_addr.reg & 0x3EFF));
                     }
+                    else
+                    {
+                        // normal buffered read
+                        result = ppu_data_buffer;
+                        ppu_data_buffer = PPURead(vram_addr.reg);
+                    }
+
                     vram_addr.reg = (ushort)(vram_addr.reg + (_control.increment_mode > 0 ? 32 : 1));
                     break;
             }

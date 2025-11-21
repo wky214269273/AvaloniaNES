@@ -58,7 +58,8 @@ public partial class Olc2C02
         fine_x = 0x00;
         address_latch = 0x00;
         ppu_data_buffer = 0x00;
-        _scanLine = 0;
+        // 修正：预渲染行应为 -1，确保预渲染周期中的寄存器清理与状态置位能被执行
+        _scanLine = -1;
         _cycle = 0;
         bg_next_tile_id = 0x00;
         bg_next_tile_attr = 0x00;
@@ -108,7 +109,8 @@ public partial class Olc2C02
                     if (vram_addr.coarse_y == 29)
                     {
                         vram_addr.coarse_y = 0;
-                        vram_addr.nametable_y = (byte)~vram_addr.nametable_y;
+                        // 修复：使用 XOR 切换 nametable_y（之前错误使用 ~ 会产生 0xFF）
+                        vram_addr.nametable_y = (byte)(vram_addr.nametable_y ^ 0x01);
                     }
                     else if (vram_addr.coarse_y == 31)
                     {
