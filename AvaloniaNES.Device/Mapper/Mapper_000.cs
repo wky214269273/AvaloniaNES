@@ -1,4 +1,4 @@
-﻿using AvaloniaNES.Device.Cart;
+using AvaloniaNES.Device.Cart;
 
 namespace AvaloniaNES.Device.Mapper;
 
@@ -26,9 +26,9 @@ public class Mapper_000 : IMapperService
 
     public bool CPUMapRead(ushort address, ref uint mapAddress, ref byte data)
     {
-        if (address is >= 0x8000 and < 0xFFFF)
+        if (address >= 0x8000)
         {
-            // bank in 000 is always 1 or 2
+            // Mapper 0: 16KB ROM重复映射到32KB空间，32KB ROM直接映射
             mapAddress = (uint)(address & (_prgBank > 1 ? 0x7FFF : 0x3FFF));
             return true;
         }
@@ -37,10 +37,12 @@ public class Mapper_000 : IMapperService
 
     public bool CPUMapWrite(ushort address, ref uint mapAddress, byte data)
     {
-        if (address is >= 0x8000 and < 0xFFFF)
+        if (address >= 0x8000)
         {
-            mapAddress = (uint)(address & (_prgBank > 1 ? 0x7FFF : 0x3FFF));
-            return true;
+            // Mapper 0通常不支持PRG RAM写入，但保留地址映射逻辑
+            // 严格来说，Mapper 0应该返回false表示不处理写入
+            // mapAddress = (uint)(address & (_prgBank > 1 ? 0x7FFF : 0x3FFF));
+            return false;
         }
         return false;
     }

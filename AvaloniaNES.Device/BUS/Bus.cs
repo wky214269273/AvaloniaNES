@@ -1,4 +1,4 @@
-﻿using AvaloniaNES.Device.Cart;
+using AvaloniaNES.Device.Cart;
 using AvaloniaNES.Device.CPU;
 using AvaloniaNES.Device.PPU;
 
@@ -147,18 +147,19 @@ public class Bus
     {
         if (CART == null) return;  //No cartridge
 
-        //PPU
+        //PPU - 始终运行一个时钟周期
         PPU!.Clock();
 
-        //CPU
-        if (nSystemClockCounter % 3 == 0)  //PPU is run 3 times per CPU cycle
+        //CPU - 每3个PPU时钟运行一个CPU时钟周期（NES的3:1比例）
+        if (nSystemClockCounter % 3 == 0) 
         {
             if (dma_istransfer)
             {
-                // lock cpu when dma is transfer data
-                // dma transfer must sync with other device,this must be emulated
+                // DMA传输时CPU被锁定
+                // 修正：DMA传输的时序处理，确保正确的读写周期
                 if (dma_isdummy)
                 {
+                    // 修正：dummy周期在奇数系统时钟时结束
                     if (nSystemClockCounter % 2 == 1)
                     {
                         dma_isdummy = false;
@@ -168,18 +169,18 @@ public class Bus
                 {
                     if (nSystemClockCounter % 2 == 0)
                     {
-                        // 1 clock read
+                        // 偶数时钟读取数据
                         dma_data = CPURead((ushort)((dma_page << 8) | dma_addr));
                     }
                     else
                     {
-                        // 1 clock transfer
+                        // 奇数时钟写入OAM
                         PPU!.WriteOAMByte(dma_addr, dma_data);
                         dma_addr++;
 
                         if (dma_addr == 0x00)
                         {
-                            // complete transfer, reset flag
+                            // 传输完成，重置标志
                             dma_istransfer = false;
                             dma_isdummy = true;
                         }

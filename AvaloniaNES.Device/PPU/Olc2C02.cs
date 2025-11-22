@@ -1,4 +1,4 @@
-﻿using AvaloniaNES.Device.BUS;
+using AvaloniaNES.Device.BUS;
 using AvaloniaNES.Device.Cart;
 
 namespace AvaloniaNES.Device.PPU;
@@ -485,20 +485,28 @@ public partial class Olc2C02
 
             if (isSpriteZeroBeingRendered && isSpriteZeroHitPossible)
             {
-                if ((_mask.render_background & _mask.render_sprites) > 0)
+                // 精灵零碰撞检测：确保在可见区域内（扫描线0-239，周期1-255）
+                if (_scanLine >= 0 && _scanLine < 240)
                 {
-                    if (_mask.render_sprites_left == 0 || _mask.render_background_left == 0)
+                    // 修正：只有同时渲染背景和精灵，且两者都非零像素时才检测碰撞
+                    if (bg_pixel > 0 && fg_pixel > 0)
                     {
-                        if (_cycle >= 9 && _cycle < 258)
+                        // 根据是否渲染左侧8像素来调整周期范围
+                        if (_mask.render_sprites_left == 0 || _mask.render_background_left == 0)
                         {
-                            _status.sprite_zero_hit = 1;
+                            // 修正：严格按照NES规格，当关闭左侧渲染时，周期9-255
+                            if (_cycle >= 9 && _cycle <= 255)
+                            {
+                                _status.sprite_zero_hit = 1;
+                            }
                         }
-                    }
-                    else
-                    {
-                        if (_cycle >= 1 && _cycle < 258)
+                        else
                         {
-                            _status.sprite_zero_hit = 1;
+                            // 否则周期1-255
+                            if (_cycle >= 1 && _cycle <= 255)
+                            {
+                                _status.sprite_zero_hit = 1;
+                            }
                         }
                     }
                 }
@@ -512,7 +520,7 @@ public partial class Olc2C02
         {
             if (_cycle == 260 && _scanLine < 240)
             {
-                _cart!.GetMapper().scanline();
+                _cart?.GetMapper()?.scanline(); // 添加空值检查
             }
         }
 

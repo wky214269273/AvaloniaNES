@@ -117,11 +117,15 @@ namespace AvaloniaNES.Device.Mapper
                             {
                                 // 4k mode
                                 _chrBankSelect4Lo = (byte)(nLoadRegister & 0x1F);
+                                // 添加边界检查
+                                _chrBankSelect4Lo %= (byte)(_chrBank * 2);
                             }
                             else
                             {
                                 // 8k mode
                                 _chrBankSelect8 = (byte)(nLoadRegister & 0x1E);
+                                // 添加边界检查
+                                _chrBankSelect8 %= _chrBank;
                             }
                         }
                         else if (targetRegister == 2)
@@ -131,26 +135,34 @@ namespace AvaloniaNES.Device.Mapper
                             {
                                 // 4k mode
                                 _chrBankSelect4Hi = (byte)(nLoadRegister & 0x1F);
+                                // 添加边界检查
+                                _chrBankSelect4Hi %= (byte)(_chrBank * 2);
                             }
                         }
                         else
                         {
-                            byte rpgMode = (byte)((nControlRegister >> 2) & 0x03);
-                            if (rpgMode == 0 || rpgMode == 1)
+                            byte prgMode = (byte)((nControlRegister >> 2) & 0x03);
+                            if (prgMode == 0 || prgMode == 1)
                             {
                                 // 32k mode
                                 _prgBankSelect32 = (byte)((nLoadRegister & 0x0E) >> 1);
+                                // 添加边界检查，确保Bank索引不会超出范围
+                                _prgBankSelect32 %= (byte)(_prgBank / 2);
                             }
-                            else if (rpgMode == 2)
+                            else if (prgMode == 2)
                             {
                                 // fix first bank at $8000, switch 16k bank at $C000
                                 _prgBankSelect16Hi = (byte)(nLoadRegister & 0x0F);
+                                // 添加边界检查
+                                _prgBankSelect16Hi %= _prgBank;
                                 _prgBankSelect16Lo = 0;
                             }
-                            else if (rpgMode == 3)
+                            else if (prgMode == 3)
                             {
                                 // fix last bank at $C000, switch 16k bank at $8000
                                 _prgBankSelect16Lo = (byte)(nLoadRegister & 0x0F);
+                                // 添加边界检查
+                                _prgBankSelect16Lo %= _prgBank;
                                 _prgBankSelect16Hi = (byte)(_prgBank - 1);
                             }
                         }
@@ -218,11 +230,14 @@ namespace AvaloniaNES.Device.Mapper
         {
             if (address < 0x2000)
             {
+                // 只有CHR-RAM模式下才允许写入
                 if (_chrBank == 0)
                 {
                     mapAddress = address;
+                    return true;
                 }
-                return true;
+                // CHR-ROM模式不允许写入
+                return false;
             }
 
             return false;

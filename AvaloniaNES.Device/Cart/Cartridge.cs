@@ -1,4 +1,4 @@
-﻿using AvaloniaNES.Device.Mapper;
+using AvaloniaNES.Device.Mapper;
 
 namespace AvaloniaNES.Device.Cart;
 
@@ -36,6 +36,7 @@ public partial class Cartridge
             002 => new Mapper_002(),
             003 => new Mapper_003(),
             004 => new Mapper_004(),
+            023 => new Mapper_023(),
             066 => new Mapper_066(),
             _ => throw new Exception($"Not supported mapper: {rom.MapperId:D3} now!")
         };

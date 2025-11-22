@@ -1,4 +1,4 @@
-﻿using AvaloniaNES.Device.Cart;
+using AvaloniaNES.Device.Cart;
 
 namespace AvaloniaNES.Device.Mapper;
 
@@ -29,10 +29,11 @@ public class Mapper_066 : IMapperService
 
     public bool CPUMapRead(ushort address, ref uint mapAddress, ref byte data)
     {
-        if (address is >= 0x8000 and < 0xFFFF)
+        if (address >= 0x8000)
         {
-            // bank in 000 is always 1 or 2
-            mapAddress = (uint)(_prgBankSelect * 0x8000 + (address & 0x7FFF));
+            // Mapper 066: 32KB PRG Bank切换
+            byte effectiveBank = (byte)(_prgBankSelect % _prgBank);
+            mapAddress = (uint)(effectiveBank * 0x8000 + (address & 0x7FFF));
             return true;
         }
         return false;
@@ -40,10 +41,32 @@ public class Mapper_066 : IMapperService
 
     public bool CPUMapWrite(ushort address, ref uint mapAddress, byte data)
     {
-        if (address is >= 0x8000 and < 0xFFFF)
+        if (address >= 0x8000)
         {
-            _prgBankSelect = (byte)(data & 0x03); // register
+            // Mapper 066寄存器格式：
+            // D7 D6 D5 D4 D3 D2 D1 D0
+            // x  x  x  x  x  x | |
+            //                  | +-- PRG Bank Select (2 bits)
+            //                  +----
+            //            +--+
+            //            |  |
+            // D7 D6 D5 D4 D3 D2 D1 D0
+            // x  x  |  |  x  x  x  x
+            //       +--+
+            //       CHR Bank Select (2 bits)
+            
+            // 设置PRG Bank选择 (低2位)
+            _prgBankSelect = (byte)(data & 0x03);
+            // 添加边界检查
+            _prgBankSelect %= _prgBank;
+            
+            // 设置CHR Bank选择 (位4-5)
             _chrBankSelect = (byte)((data & 0x30) >> 4);
+            // 添加边界检查
+            if (_chrBank > 0)
+            {
+                _chrBankSelect %= _chrBank;
+            }
         }
         return false;
     }
@@ -52,15 +75,29 @@ public class Mapper_066 : IMapperService
     {
         if (address <= 0x1FFF)
         {
-            mapAddress = (uint)(_chrBankSelect * 0x2000 + (address & 0x1FFF));
+            // 对于CHR-ROM，使用选择的Bank
+            // 对于CHR-RAM，忽略Bank选择
+            if (_chrBank > 0)
+            {
+                mapAddress = (uint)(_chrBankSelect * 0x2000 + (address & 0x1FFF));
+            }
+            else
+            {
+                mapAddress = address;
+            }
             return true;
         }
-
         return false;
     }
 
     public bool PPUMapWrite(ushort address, ref uint mapAddress)
     {
+        // 只有CHR-RAM模式下才允许写入
+        if (address <= 0x1FFF && _chrBank == 0)
+        {
+            mapAddress = address;
+            return true;
+        }
         return false;
     }
 

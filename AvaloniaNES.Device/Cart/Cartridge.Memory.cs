@@ -1,4 +1,4 @@
-﻿using static System.Runtime.InteropServices.JavaScript.JSType;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AvaloniaNES.Device.Cart;
 
@@ -41,7 +41,8 @@ public partial class Cartridge
         if (_mapper.PPUMapRead(address, ref mapAddress))
         {
             if (_chrBanks == 0)
-                value = _chrRam[mapAddress % 0x2000];
+                // CHR-RAM直接使用映射地址，Mapper已经确保地址在有效范围内
+                value = _chrRam[mapAddress];
             else
                 value = _chrRom[mapAddress];
             return true;
@@ -56,7 +57,8 @@ public partial class Cartridge
         {
             if (_chrBanks == 0)
             {
-                _chrRam[mapAddress % 0x2000] = value;
+                // CHR-RAM直接使用映射地址，Mapper已经确保地址在有效范围内
+                _chrRam[mapAddress] = value;
                 return true;
             }
         }

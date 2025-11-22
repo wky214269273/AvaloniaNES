@@ -1,4 +1,4 @@
-﻿using AvaloniaNES.Device.Cart;
+using AvaloniaNES.Device.Cart;
 
 namespace AvaloniaNES.Device.PPU;
 
@@ -163,7 +163,7 @@ public partial class Olc2C02
     {
         byte result = 0x00;
         address &= 0x3FFF;
-        if (_cart!.PPURead(address, ref result))
+        if (_cart != null && _cart.PPURead(address, ref result))
         {
         }
         else if (address <= 0x1FFF)
@@ -175,43 +175,57 @@ public partial class Olc2C02
         {
             // nametable memory
             address &= 0x0FFF;
-            if (_cart.GetMirror() == MirroringType.Vertical)
+            if (_cart != null)
             {
-                // mirror is left/right
-                if (address <= 0x03FF)
+                var mirrorType = _cart.GetMirror();
+                if (mirrorType == MirroringType.Vertical)
                 {
+                    // mirror is left/right
+                    if (address <= 0x03FF)
+                    {
+                        result = _tblName[0][address & 0x03FF];
+                    }
+                    else if (address <= 0x07FF)
+                    {
+                        result = _tblName[1][address & 0x03FF];
+                    }
+                    else if (address <= 0x0BFF)
+                    {
+                        result = _tblName[0][address & 0x03FF];
+                    }
+                    else
+                    {
+                        result = _tblName[1][address & 0x03FF];
+                    }
+                }
+                else if (mirrorType == MirroringType.Horizontal)
+                {
+                    // mirror is top/bottom
+                    if (address <= 0x03FF)
+                    {
+                        result = _tblName[0][address & 0x03FF];
+                    }
+                    else if (address <= 0x07FF)
+                    {
+                        result = _tblName[0][address & 0x03FF];
+                    }
+                    else if (address <= 0x0BFF)
+                    {
+                        result = _tblName[1][address & 0x03FF];
+                    }
+                    else
+                    {
+                        result = _tblName[1][address & 0x03FF];
+                    }
+                }
+                else if (mirrorType == MirroringType.OneScreen_Lo)
+                {
+                    // single screen (lower nametable)
                     result = _tblName[0][address & 0x03FF];
                 }
-                else if (address <= 0x07FF)
+                else if (mirrorType == MirroringType.OneScreen_Hi)
                 {
-                    result = _tblName[1][address & 0x03FF];
-                }
-                else if (address <= 0x0BFF)
-                {
-                    result = _tblName[0][address & 0x03FF];
-                }
-                else
-                {
-                    result = _tblName[1][address & 0x03FF];
-                }
-            }
-            else if (_cart.GetMirror() == MirroringType.Horizontal)
-            {
-                // mirror is top/bottom
-                if (address <= 0x03FF)
-                {
-                    result = _tblName[0][address & 0x03FF];
-                }
-                else if (address <= 0x07FF)
-                {
-                    result = _tblName[0][address & 0x03FF];
-                }
-                else if (address <= 0x0BFF)
-                {
-                    result = _tblName[1][address & 0x03FF];
-                }
-                else
-                {
+                    // single screen (upper nametable)
                     result = _tblName[1][address & 0x03FF];
                 }
             }
@@ -235,7 +249,7 @@ public partial class Olc2C02
     {
         address &= 0x3FFF;
 
-        if (_cart!.PPUWrite(address, value))
+        if (_cart != null && _cart.PPUWrite(address, value))
         {
         }
         else if (address <= 0x1FFF)
@@ -247,43 +261,57 @@ public partial class Olc2C02
         {
             // nametable memory
             address &= 0x0FFF;
-            if (_cart.GetMirror() == MirroringType.Vertical)
+            if (_cart != null)
             {
-                // mirror is left/right
-                if (address <= 0x03FF)
+                var mirrorType = _cart.GetMirror();
+                if (mirrorType == MirroringType.Vertical)
                 {
+                    // mirror is left/right
+                    if (address <= 0x03FF)
+                    {
+                        _tblName[0][address & 0x03FF] = value;
+                    }
+                    else if (address <= 0x07FF)
+                    {
+                        _tblName[1][address & 0x03FF] = value;
+                    }
+                    else if (address <= 0x0BFF)
+                    {
+                        _tblName[0][address & 0x03FF] = value;
+                    }
+                    else
+                    {
+                        _tblName[1][address & 0x03FF] = value;
+                    }
+                }
+                else if (mirrorType == MirroringType.Horizontal)
+                {
+                    // mirror is top/bottom
+                    if (address <= 0x03FF)
+                    {
+                        _tblName[0][address & 0x03FF] = value;
+                    }
+                    else if (address <= 0x07FF)
+                    {
+                        _tblName[0][address & 0x03FF] = value;
+                    }
+                    else if (address <= 0x0BFF)
+                    {
+                        _tblName[1][address & 0x03FF] = value;
+                    }
+                    else
+                    {
+                        _tblName[1][address & 0x03FF] = value;
+                    }
+                }
+                else if (mirrorType == MirroringType.OneScreen_Lo)
+                {
+                    // single screen (lower nametable)
                     _tblName[0][address & 0x03FF] = value;
                 }
-                else if (address <= 0x07FF)
+                else if (mirrorType == MirroringType.OneScreen_Hi)
                 {
-                    _tblName[1][address & 0x03FF] = value;
-                }
-                else if (address <= 0x0BFF)
-                {
-                    _tblName[0][address & 0x03FF] = value;
-                }
-                else
-                {
-                    _tblName[1][address & 0x03FF] = value;
-                }
-            }
-            else if (_cart.GetMirror() == MirroringType.Horizontal)
-            {
-                // mirror is top/bottom
-                if (address <= 0x03FF)
-                {
-                    _tblName[0][address & 0x03FF] = value;
-                }
-                else if (address <= 0x07FF)
-                {
-                    _tblName[0][address & 0x03FF] = value;
-                }
-                else if (address <= 0x0BFF)
-                {
-                    _tblName[1][address & 0x03FF] = value;
-                }
-                else
-                {
+                    // single screen (upper nametable)
                     _tblName[1][address & 0x03FF] = value;
                 }
             }

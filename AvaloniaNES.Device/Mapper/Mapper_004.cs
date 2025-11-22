@@ -18,8 +18,7 @@ namespace AvaloniaNES.Device.Mapper
 
         private bool bIRQActive = false;
         private bool bIRQEnable = false;
-        private bool bIRQUpdate = false;
-        private ushort nIRQCounter = 0;
+        private ushort nIRQCounter = 0xFF; // 正确初始化中断计数器为0xFF
         private ushort nIRQReload = 0;
         private byte[] _ram = new byte[32 * 1024];
 
@@ -190,7 +189,7 @@ namespace AvaloniaNES.Device.Mapper
 
             bIRQActive = false;
             bIRQEnable = false;
-            bIRQUpdate = false;
+            //bIRQUpdate = false;
             nIRQCounter = 0x0000;
             nIRQReload = 0x0000;
 
@@ -211,15 +210,21 @@ namespace AvaloniaNES.Device.Mapper
 
         public void scanline()
         {
+            // 修正：MMC3中断计数器在可见扫描线开始时更新
+            // 严格按照NES MMC3芯片规范实现
             if (nIRQCounter == 0)
             {
+                // 当计数器为0时，重新从reload寄存器加载值
                 nIRQCounter = nIRQReload;
             }
             else
             {
+                // 递减计数器
                 nIRQCounter--;
             }
 
+            // 当计数器减到0并且中断启用时，触发中断
+            // 这是关键修正：中断应该在计数器递减后检查
             if (nIRQCounter == 0 && bIRQEnable)
             {
                 bIRQActive = true;
@@ -231,9 +236,10 @@ namespace AvaloniaNES.Device.Mapper
         {
             // PRG ROM 总bank数
             int prgBankCount = _prgBank * 2;
+            // 对于CHR-RAM模式(_chrBank == 0)，提供默认的bank数量用于映射
             int chrBankCount = (_chrBank == 0) ? 8 : _chrBank * 8;
 
-            // 边界保护
+            // 边界保护，确保bank选择不会超出范围
             byte prg6 = (byte)(pRegister[6] % prgBankCount);
             byte prg7 = (byte)(pRegister[7] % prgBankCount);
 
@@ -263,34 +269,32 @@ namespace AvaloniaNES.Device.Mapper
 
             // CHR Bank 映射
             // 2K/1K 切换，倒置模式
-            if (_chrBank > 0)
+            // 无论CHR是ROM还是RAM，都应用相同的映射逻辑
+            if (isChrInversion)
             {
-                if (isChrInversion)
-                {
-                    // 2K: 0,1 -> pRegister[2], pRegister[3]
-                    pChrBank[0] = (uint)(((pRegister[2] & 0xFE) % chrBankCount) * 0x400);
-                    pChrBank[1] = (uint)(((pRegister[2] | 0x01) % chrBankCount) * 0x400);
-                    pChrBank[2] = (uint)(((pRegister[3] & 0xFE) % chrBankCount) * 0x400);
-                    pChrBank[3] = (uint)(((pRegister[3] | 0x01) % chrBankCount) * 0x400);
-                    // 1K: 4,5,6,7
-                    pChrBank[4] = (uint)((pRegister[0] % chrBankCount) * 0x400);
-                    pChrBank[5] = (uint)((pRegister[1] % chrBankCount) * 0x400);
-                    pChrBank[6] = (uint)((pRegister[4] % chrBankCount) * 0x400);
-                    pChrBank[7] = (uint)((pRegister[5] % chrBankCount) * 0x400);
-                }
-                else
-                {
-                    // 2K: 0,1 -> pRegister[0], pRegister[1]
-                    pChrBank[0] = (uint)(((pRegister[0] & 0xFE) % chrBankCount) * 0x400);
-                    pChrBank[1] = (uint)(((pRegister[0] | 0x01) % chrBankCount) * 0x400);
-                    pChrBank[2] = (uint)(((pRegister[1] & 0xFE) % chrBankCount) * 0x400);
-                    pChrBank[3] = (uint)(((pRegister[1] | 0x01) % chrBankCount) * 0x400);
-                    // 1K: 2,3,4,5
-                    pChrBank[4] = (uint)((pRegister[2] % chrBankCount) * 0x400);
-                    pChrBank[5] = (uint)((pRegister[3] % chrBankCount) * 0x400);
-                    pChrBank[6] = (uint)((pRegister[4] % chrBankCount) * 0x400);
-                    pChrBank[7] = (uint)((pRegister[5] % chrBankCount) * 0x400);
-                }
+                // 2K: 0,1 -> pRegister[2], pRegister[3]
+                pChrBank[0] = (uint)(((pRegister[2] & 0xFE) % chrBankCount) * 0x400);
+                pChrBank[1] = (uint)(((pRegister[2] | 0x01) % chrBankCount) * 0x400);
+                pChrBank[2] = (uint)(((pRegister[3] & 0xFE) % chrBankCount) * 0x400);
+                pChrBank[3] = (uint)(((pRegister[3] | 0x01) % chrBankCount) * 0x400);
+                // 1K: 4,5,6,7
+                pChrBank[4] = (uint)((pRegister[0] % chrBankCount) * 0x400);
+                pChrBank[5] = (uint)((pRegister[1] % chrBankCount) * 0x400);
+                pChrBank[6] = (uint)((pRegister[4] % chrBankCount) * 0x400);
+                pChrBank[7] = (uint)((pRegister[5] % chrBankCount) * 0x400);
+            }
+            else
+            {
+                // 2K: 0,1 -> pRegister[0], pRegister[1]
+                pChrBank[0] = (uint)(((pRegister[0] & 0xFE) % chrBankCount) * 0x400);
+                pChrBank[1] = (uint)(((pRegister[0] | 0x01) % chrBankCount) * 0x400);
+                pChrBank[2] = (uint)(((pRegister[1] & 0xFE) % chrBankCount) * 0x400);
+                pChrBank[3] = (uint)(((pRegister[1] | 0x01) % chrBankCount) * 0x400);
+                // 1K: 2,3,4,5
+                pChrBank[4] = (uint)((pRegister[2] % chrBankCount) * 0x400);
+                pChrBank[5] = (uint)((pRegister[3] % chrBankCount) * 0x400);
+                pChrBank[6] = (uint)((pRegister[4] % chrBankCount) * 0x400);
+                pChrBank[7] = (uint)((pRegister[5] % chrBankCount) * 0x400);
             }
         }
     }
