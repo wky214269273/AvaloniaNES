@@ -24,7 +24,7 @@ Fully implements high-performance pixel image rendering.
 
 ### APU
 
-No APU functions have been implemented yet. Audio involves a lot of professional knowledge, which will be supplemented gradually with Mapper updates in the future.
+Fully implements APU By Gemini-3-pro, But also has some game can't run correctly, just like Mario.
 
 ### Key Mapping
 
